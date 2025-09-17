@@ -1,0 +1,160 @@
+﻿@page "/Employee"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+
+@using EmployeeTraingsTracker.Model
+@using EmployeeTraingsTracker.Services
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Authentication
+@inject IEmployeeService EmployeeService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<h2 class="text-2xl font-bold mb-4">Employees</h2>
+
+<!-- Add New Employee -->
+<div class="mb-6">
+    <h3 class="text-lg font-semibold mb-2">Add Employee</h3>
+
+    <!-- Error Message Display -->
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="mb-4 p-4 rounded-md bg-red-50 border border-red-200">
+            <div class="text-sm text-red-700">@errorMessage</div>
+        </div>
+    }
+
+    <input @bind-value="newEmployee.Name" placeholder="Name" class="border rounded p-2 mr-2" />
+    <input @bind-value="newEmployee.PhoneNumber" placeholder="PhoneNumber" class="border rounded p-2 mr-2" />
+    <input @bind-value="newEmployee.Email" placeholder="Email" class="border rounded p-2 mr-2" />
+    <input @bind-value="newEmployee.Address" placeholder="Address" class="border rounded p-2 mr-2" />
+    <input @bind-value="newEmployee.Designation" placeholder="Designation" class="border rounded p-2 mr-2" />
+    <input @bind-value="newEmployee.Department" placeholder="Department" class="border rounded p-2 mr-2" />
+    
+</div>
+
+@*  <select @bind="AssignedRoleID" class="border rounded p-2 mr-2">
+        <option value="">-- Select Role --</option>
+        
+            <option value="@admin">Admin</option>
+             <option value="@employee">Employee</option>
+        
+    </select>
+     *@
+<button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded" @onclick="AddEmployee">
+    Add
+</button>
+
+<!-- Employee List -->
+<table class="table-auto w-full border-collapse border border-gray-200">
+    <thead>
+        <tr class="bg-gray-100">
+            <th class="border px-4 py-2">ID</th>
+            <th class="border px-4 py-2">Name</th>
+            <th class="border px-4 py-2">PhoneNumber</th>
+            <th class="border px-4 py-2">Email</th>
+            <th class="border px-4 py-2">Address</th>
+            <th class="border px-4 py-2">Designation</th>
+            <th class="border px-4 py-2">Department</th>
+            <th class="border px-4 py-2">Specialization</th>
+
+            <th class="border px-4 py-2">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (employees != null && employees.Any())
+        {
+            @foreach (var emp in employees)
+            {
+                <tr>
+                    <td class="border px-4 py-2">@emp.Id</td>
+                    <td class="border px-4 py-2">@emp.Name</td>
+                    <td class="border px-4 py-2">@emp.PhoneNumber</td>
+                    <td class="border px-4 py-2">@emp.Email</td>
+                    <td class="border px-4 py-2">@emp.Address</td>
+                    <td class="border px-4 py-2">@emp.Designation</td>
+                    <td class="border px-4 py-2">@emp.Department</td>
+                   
+
+
+                    <td class="border px-4 py-2">
+                        <button type="button" class="bg-red-600 text-white px-3 py-1 rounded"
+                                @onclick="() => DeleteEmployee(emp.Id)">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="9" class="text-center py-4">No employees found.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code
+{
+    private int admin = 1;
+    private int employee = 2;
+    private int assignedRole;
+    private List<Employee> employees;
+    private string errorMessage = string.Empty; // Add error message variable
+
+    [SupplyParameterFromForm]
+    private Employee newEmployee { get; set; } = new();
+    private AuthenticationState authState;
+
+    protected override async Task OnInitializedAsync()
+    {
+        authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        employees = await EmployeeService.GetAllAsync();
+    }
+
+    private async Task AddEmployee()
+    {
+        // Clear previous error message
+        errorMessage = string.Empty;
+
+        // Basic validation
+        if (string.IsNullOrWhiteSpace(newEmployee.Name) || string.IsNullOrWhiteSpace(newEmployee.Email))
+        {
+            errorMessage = "Name and Email are required.";
+            return;
+        }
+
+        // Email validation - Check if email is registered as employee
+        var isValidEmployee = await EmployeeService.IsEmailRegisteredAsEmployeeAsync(newEmployee.Email);
+
+        if (!isValidEmployee)
+        {
+            errorMessage = "Email address not registered as employee.";
+            ClearForm(); // Clear the form
+            return;
+        }
+
+        // If validation passes, add the employee
+        try
+        {
+            await EmployeeService.AddAsync(newEmployee);
+            employees = await EmployeeService.GetAllAsync();
+            ClearForm(); // Clear form on success
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "An error occurred while adding the employee.";
+        }
+    }
+
+    private void ClearForm()
+    {
+        newEmployee = new Employee();
+    }
+
+    private async Task DeleteEmployee(int id)
+    {
+        await EmployeeService.DeleteAsync(id);
+        employees = await EmployeeService.GetAllAsync();
+    }
+}
