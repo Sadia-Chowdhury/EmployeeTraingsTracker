@@ -9,90 +9,211 @@
 @inject IEmployeeService EmployeeService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-<h2 class="text-2xl font-bold mb-4">Employees</h2>
-
-<!-- Add New Employee -->
-<div class="mb-6">
-    <h3 class="text-lg font-semibold mb-2">Add Employee</h3>
-
-    <!-- Error Message Display -->
-    @if (!string.IsNullOrEmpty(errorMessage))
-    {
-        <div class="mb-4 p-4 rounded-md bg-red-50 border border-red-200">
-            <div class="text-sm text-red-700">@errorMessage</div>
+<div class="min-h-full bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="sm:flex sm:items-center mb-8">
+            <div class="sm:flex-auto">
+                <h1 class="text-3xl font-bold leading-6 text-gray-900">Employee Management</h1>
+                <p class="mt-2 text-sm text-gray-700">Manage your employees and their information.</p>
+            </div>
         </div>
-    }
 
-    <input @bind-value="newEmployee.Name" placeholder="Name" class="border rounded p-2 mr-2" />
-    <input @bind-value="newEmployee.PhoneNumber" placeholder="PhoneNumber" class="border rounded p-2 mr-2" />
-    <input @bind-value="newEmployee.Email" placeholder="Email" class="border rounded p-2 mr-2" />
-    <input @bind-value="newEmployee.Address" placeholder="Address" class="border rounded p-2 mr-2" />
-    <input @bind-value="newEmployee.Designation" placeholder="Designation" class="border rounded p-2 mr-2" />
-    <input @bind-value="newEmployee.Department" placeholder="Department" class="border rounded p-2 mr-2" />
-    
+        <!-- Add New Employee Card -->
+        <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl mb-8">
+            <div class="px-4 py-6 sm:p-8">
+                <div class="sm:flex sm:items-center mb-6">
+                    <div class="sm:flex-auto">
+                        <h2 class="text-xl font-semibold leading-6 text-gray-900">Add New Employee</h2>
+                        <p class="mt-1 text-sm text-gray-600">Enter employee details to add them to the system.</p>
+                    </div>
+                </div>
+
+                <!-- Error Message Display -->
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="mb-6 rounded-md bg-red-50 p-4 ring-1 ring-red-200">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-red-800">Error</h3>
+                                <div class="mt-1 text-sm text-red-700">@errorMessage</div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Form Grid -->
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    <div>
+                        <label class="block text-sm font-medium leading-6 text-gray-900 mb-2">Name</label>
+                        <input @bind-value="newEmployee.Name"
+                               type="text"
+                               placeholder="Enter full name"
+                               class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium leading-6 text-gray-900 mb-2">Phone Number</label>
+                        <input @bind-value="newEmployee.PhoneNumber"
+                               type="tel"
+                               placeholder="Enter phone number"
+                               class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium leading-6 text-gray-900 mb-2">Email</label>
+                        <input @bind-value="newEmployee.Email"
+                               type="email"
+                               placeholder="Enter email address"
+                               class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium leading-6 text-gray-900 mb-2">Address</label>
+                        <input @bind-value="newEmployee.Address"
+                               type="text"
+                               placeholder="Enter address"
+                               class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium leading-6 text-gray-900 mb-2">Designation</label>
+                        <input @bind-value="newEmployee.Designation"
+                               type="text"
+                               placeholder="Enter designation"
+                               class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium leading-6 text-gray-900 mb-2">Department</label>
+                        <input @bind-value="newEmployee.Department"
+                               type="text"
+                               placeholder="Enter department"
+                               class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+                    </div>
+                </div>
+
+                <div class="mt-6 flex items-center justify-end gap-x-6">
+                    <button type="button"
+                            @onclick="ClearForm"
+                            class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700">
+                        Clear
+                    </button>
+                    <button type="submit"
+                            @onclick="AddEmployee"
+                            class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                        Add Employee
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employee List Card -->
+        <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
+            <div class="px-4 py-6 sm:p-8">
+                <div class="sm:flex sm:items-center mb-6">
+                    <div class="sm:flex-auto">
+                        <h2 class="text-xl font-semibold leading-6 text-gray-900">Employee Directory</h2>
+                        <p class="mt-1 text-sm text-gray-600">A list of all employees including their personal information and role details.</p>
+                    </div>
+                </div>
+
+                @if (employees != null && employees.Any())
+                {
+                    <!-- Desktop Table -->
+                    <div class="hidden sm:block">
+                        <div class="flow-root">
+                            <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                                <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+                                    <table class="min-w-full divide-y divide-gray-300">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">ID</th>
+                                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Name</th>
+                                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Phone</th>
+                                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Email</th>
+                                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Address</th>
+                                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Designation</th>
+                                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Department</th>
+                                                <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-0">
+                                                    <span class="sr-only">Actions</span>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-200">
+                                            @foreach (var emp in employees)
+                                            {
+                                                <tr class="hover:bg-gray-50">
+                                                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">@emp.Id</td>
+                                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">@emp.Name</td>
+                                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">@emp.PhoneNumber</td>
+                                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">@emp.Email</td>
+                                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">@emp.Address</td>
+                                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">@emp.Designation</td>
+                                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">@emp.Department</td>
+                                                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
+                                                        <button type="button"
+                                                                @onclick="() => DeleteEmployee(emp.Id)"
+                                                                class="inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600">
+                                                            Delete
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Cards -->
+                    <div class="sm:hidden space-y-4">
+                        @foreach (var emp in employees)
+                        {
+                            <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h3 class="text-lg font-medium text-gray-900">@emp.Name</h3>
+                                    <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">ID: @emp.Id</span>
+                                </div>
+                                <div class="space-y-2 text-sm text-gray-600">
+                                    <div><span class="font-medium">Email:</span> @emp.Email</div>
+                                    <div><span class="font-medium">Phone:</span> @emp.PhoneNumber</div>
+                                    <div><span class="font-medium">Address:</span> @emp.Address</div>
+                                    <div><span class="font-medium">Designation:</span> @emp.Designation</div>
+                                    <div><span class="font-medium">Department:</span> @emp.Department</div>
+                                </div>
+                                <div class="mt-4 flex justify-end">
+                                    <button type="button"
+                                            @onclick="() => DeleteEmployee(emp.Id)"
+                                            class="inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-red-500">
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <!-- Empty State -->
+                    <div class="text-center py-12">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                        </svg>
+                        <h3 class="mt-2 text-sm font-semibold text-gray-900">No employees</h3>
+                        <p class="mt-1 text-sm text-gray-500">Get started by adding your first employee.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
 </div>
-
-@*  <select @bind="AssignedRoleID" class="border rounded p-2 mr-2">
-        <option value="">-- Select Role --</option>
-        
-            <option value="@admin">Admin</option>
-             <option value="@employee">Employee</option>
-        
-    </select>
-     *@
-<button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded" @onclick="AddEmployee">
-    Add
-</button>
-
-<!-- Employee List -->
-<table class="table-auto w-full border-collapse border border-gray-200">
-    <thead>
-        <tr class="bg-gray-100">
-            <th class="border px-4 py-2">ID</th>
-            <th class="border px-4 py-2">Name</th>
-            <th class="border px-4 py-2">PhoneNumber</th>
-            <th class="border px-4 py-2">Email</th>
-            <th class="border px-4 py-2">Address</th>
-            <th class="border px-4 py-2">Designation</th>
-            <th class="border px-4 py-2">Department</th>
-            <th class="border px-4 py-2">Specialization</th>
-
-            <th class="border px-4 py-2">Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (employees != null && employees.Any())
-        {
-            @foreach (var emp in employees)
-            {
-                <tr>
-                    <td class="border px-4 py-2">@emp.Id</td>
-                    <td class="border px-4 py-2">@emp.Name</td>
-                    <td class="border px-4 py-2">@emp.PhoneNumber</td>
-                    <td class="border px-4 py-2">@emp.Email</td>
-                    <td class="border px-4 py-2">@emp.Address</td>
-                    <td class="border px-4 py-2">@emp.Designation</td>
-                    <td class="border px-4 py-2">@emp.Department</td>
-                   
-
-
-                    <td class="border px-4 py-2">
-                        <button type="button" class="bg-red-600 text-white px-3 py-1 rounded"
-                                @onclick="() => DeleteEmployee(emp.Id)">
-                            Delete
-                        </button>
-                    </td>
-                </tr>
-            }
-        }
-        else
-        {
-            <tr>
-                <td colspan="9" class="text-center py-4">No employees found.</td>
-            </tr>
-        }
-    </tbody>
-</table>
 
 @code
 {
@@ -100,7 +221,7 @@
     private int employee = 2;
     private int assignedRole;
     private List<Employee> employees;
-    private string errorMessage = string.Empty; // Add error message variable
+    private string errorMessage = string.Empty;
 
     [SupplyParameterFromForm]
     private Employee newEmployee { get; set; } = new();
