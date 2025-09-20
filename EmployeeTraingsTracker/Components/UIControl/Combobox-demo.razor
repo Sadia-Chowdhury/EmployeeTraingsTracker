@@ -1,0 +1,22 @@
+﻿@page "/combobox-demo"
+<h3>Component</h3>
+<MyComboBox TItem="string"
+          Options="Fruits"
+          OptionLabel="@(f => f)" 
+          OnSelected="OnFruitSelected"
+          Placeholder="Select a fruit..." />
+
+<p class="mt-4">Selected: <b>@SelectedFruit</b></p>
+
+@code {
+    private List<string> Fruits = new() { "Apple", "Banana", "Orange" };
+    private string SelectedFruit { get; set; } = string.Empty;
+    private void OnFruitSelected(string fruit)
+    {
+        SelectedFruit = fruit;
+    }
+}
+
+<h2 class="text-2xl font-bold mb-4">Blazor + Tailwind ComboBox</h2>
+
+ 

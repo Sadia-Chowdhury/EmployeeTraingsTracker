@@ -11,9 +11,13 @@ namespace EmployeeTraingsTracker.Data
         {
         }
     
-      public DbSet<Employee> Employees { get; set; }
+        public DbSet<Employee> Employees { get; set; }
         public DbSet<Training> Trainings { get; set; }
         public DbSet<EmployeeTraining> EmployeeTrainings { get; set; }
+        public DbSet<TrainingCatagory> TrainingCatagory { get; set; }
+
+        public DbSet<TrainingInfo> TrainingInfo { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

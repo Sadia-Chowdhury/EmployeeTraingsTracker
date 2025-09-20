@@ -1,0 +1,54 @@
+﻿@typeparam TItem
+
+<div class="relative w-64" @onclick:stopPropagation="true">
+    <!-- Input -->
+    <input type="text"
+           placeholder="@Placeholder"
+           class="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-300"
+           @bind="SearchText"
+           @onkeyup="() => IsOpen = true"/>
+
+    <!-- Dropdown -->
+    @if (IsOpen)
+    {
+        <ul class="absolute z-10 w-full bg-white border rounded-lg mt-1 max-h-40 overflow-y-auto shadow-lg">
+            @if (FilteredOptions.Any())
+            {
+                @foreach (var option in FilteredOptions)
+                {
+                    <li class="px-3 py-2 hover:bg-blue-100 cursor-pointer"
+                        @onclick="() => SelectOption(option)">
+                        @OptionLabel(option)
+                    </li>
+                }
+            }
+            else
+            {
+                <li class="px-3 py-2 text-gray-500">No results found</li>
+            }
+        </ul>
+    }
+</div>
+
+@code
+{
+    private bool IsOpen { get; set; }
+    private string SearchText { get; set; } = string.Empty;
+
+    [Parameter] public List<TItem> Options { get; set; } = new();
+    [Parameter] public Func<TItem, string> OptionLabel { get; set; } = default!;
+    [Parameter] public EventCallback<TItem> OnSelected { get; set; }
+    [Parameter] public string Placeholder { get; set; } = "Search...";
+
+    private IEnumerable<TItem> FilteredOptions =>
+        string.IsNullOrWhiteSpace(SearchText)
+            ? Options
+            : Options.Where(o => OptionLabel(o).Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+
+    private async Task SelectOption(TItem option)
+    {
+        SearchText = OptionLabel(option);
+        IsOpen = false;
+        await OnSelected.InvokeAsync(option);
+    }
+}

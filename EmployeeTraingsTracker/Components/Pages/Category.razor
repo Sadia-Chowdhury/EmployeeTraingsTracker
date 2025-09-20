@@ -1,0 +1,273 @@
+﻿@page "/Category"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveServer
+
+@using EmployeeTraingsTracker.Services
+@using EmployeeTraingsTracker.Model
+@using Microsoft.AspNetCore.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Navigation
+@inject ICategoryService CategoryService
+
+<h3>Training Category</h3>
+
+<div>
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div>
+            <label class="block text-sm font-medium leading-6 text-gray-900 mb-2">Category Name</label>
+            <input @bind-value="CategoryInfo.CategoryName"
+                   type="text"
+                   placeholder="Enter category name"
+                   class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+        </div>
+        <div>
+            <label class="inline-flex items-center cursor-pointer">
+                <input type="checkbox" @bind="CategoryInfo.IsActive" class="sr-only peer">
+                <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600">
+                </div>
+                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+                    @(CategoryInfo.IsActive ? "Active" : "Inactive")
+                </span>
+            </label>
+        </div>
+
+        <div class="flex items-end">
+            <button type="button"
+                    @onclick="SaveCategory"
+                    class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                @(isEditing ? "Update Category" : "Add Category")
+            </button>
+
+            @if (isEditing)
+            {
+                <button type="button"
+                        @onclick="CancelEdit"
+                        class="ml-2 rounded-md bg-gray-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500">
+                    Cancel
+                </button>
+            }
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            @errorMessage
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <div class="mt-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+            @successMessage
+        </div>
+    }
+</div>
+
+<div class="bg-white shadow rounded-2xl p-6 mt-6">
+    <h4 class="text-lg font-semibold mb-4">Category List</h4>
+
+    @if (categorylst == null)
+    {
+        <p class="text-gray-500">Loading categories...</p>
+    }
+    else if (categorylst.Count == 0)
+    {
+        <p class="text-gray-500">No categories found. Total count: @(categorylst?.Count ?? 0)</p>
+    }
+    else
+    {
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse border border-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="border border-gray-200 p-3 text-left font-medium text-gray-700">ID</th>
+                        <th class="border border-gray-200 p-3 text-left font-medium text-gray-700">Category Name</th>
+                        <th class="border border-gray-200 p-3 text-left font-medium text-gray-700">Status</th>
+                        <th class="border border-gray-200 p-3 text-center font-medium text-gray-700">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var category in categorylst)
+                    {
+                        <tr class="hover:bg-gray-50">
+                            <td class="border border-gray-200 p-3">
+                                <div class="font-medium text-gray-900">@category.CategoryId</div>
+                            </td>
+                            <td class="border border-gray-200 p-3">
+                                @if (!string.IsNullOrEmpty(category.CategoryName))
+                                {
+                                    <span class="text-gray-900">@category.CategoryName</span>
+                                }
+                                else
+                                {
+                                    <span class="text-gray-400">-</span>
+                                }
+                            </td>
+                            <td class="border border-gray-200 p-3">
+                                @if (category.IsActive==true)
+                                {
+                                    <span class="text-gray-900">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="text-gray-400">Not Active</span>
+                                }
+                            </td>
+                            <td class="border border-gray-200 p-3 text-center">
+                                <div class="flex gap-2 justify-center">
+                                    <button type="button"
+                                            class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition duration-200"
+                                            @onclick="() => EditCategory(category)">
+                                        Edit
+                                    </button>
+                                    <button type="button"
+                                            class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition duration-200"
+                                            @onclick="() => DeleteCategory(category.CategoryId)">
+                                        Delete
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code
+{
+    private List<TrainingCatagory> categorylst = new List<TrainingCatagory>();
+    private TrainingCatagory CategoryInfo { get; set; } = new();
+    private bool isEditing = false;
+    private string errorMessage = "";
+    private string successMessage = "";
+
+    private AuthenticationState authState;
+
+    protected override async Task OnInitializedAsync()
+    {
+        authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        await LoadCategories();
+    }
+
+    private async Task LoadCategories()
+    {
+        try
+        {
+            categorylst = await CategoryService.GetAllAsync();
+            //Console.WriteLine($"Loaded {categoryList?.Count ?? 0} categories"); // Debug log
+
+            // Debug: Print each category
+            // if (categorylst != null)
+            // {
+            //     foreach (var cat in categorylst)
+            //     {
+            //         Console.WriteLine($"Category ID: {cat.CategoryId}, Name: {cat.CategoryName}");
+            //     }
+            // }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading categories: {ex.Message}";
+            Console.WriteLine($"Error in LoadCategories: {ex}"); // Debug log
+        }
+    }
+
+    private async Task SaveCategory()
+    {
+
+        // Basic validation
+        if (string.IsNullOrWhiteSpace(CategoryInfo.CategoryName))
+        {
+            errorMessage = "Category name is required.";
+            return;
+        }
+
+        try
+        {
+            if (isEditing)
+            {
+                await CategoryService.UpdateAsync(CategoryInfo);
+                successMessage = "Category updated successfully.";
+            }
+            else
+            {
+                await CategoryService.Save(CategoryInfo);
+                successMessage = "Category added successfully.";
+            }
+
+            await LoadCategories(); // Reload the list after saving
+            ClearForm();
+            StateHasChanged(); // Force UI refresh
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error saving category: {ex.Message}";
+            Console.WriteLine($"Error in SaveCategory: {ex}");
+        }        ClearMessages();
+
+    }
+
+    // Add this test method temporarily to create sample data
+   
+
+    private async Task EditCategory(TrainingCatagory category)
+    {
+        try
+        {
+            var categoryToEdit = await CategoryService.GetByIdAsync(category.CategoryId);
+            if (categoryToEdit != null)
+            {
+                CategoryInfo = new TrainingCatagory
+                {
+                    CategoryId = categoryToEdit.CategoryId,
+                    CategoryName = categoryToEdit.CategoryName,
+                     IsActive= categoryToEdit.IsActive
+                   
+                };
+                isEditing = true;
+                ClearMessages();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading category for editing: {ex.Message}";
+        }
+    }
+
+    private async Task DeleteCategory(int categoryId)
+    {
+        ClearMessages();
+
+        try
+        {
+            await CategoryService.DeleteAsync(categoryId);
+            successMessage = "Category deleted successfully.";
+            await LoadCategories();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error deleting category: {ex.Message}";
+        }
+    }
+
+    private void CancelEdit()
+    {
+        ClearForm();
+        ClearMessages();
+    }
+
+    private void ClearForm()
+    {
+        CategoryInfo = new TrainingCatagory();
+        isEditing = false;
+    }
+
+    private void ClearMessages()
+    {
+        errorMessage = "";
+        successMessage = "";
+    }
+}

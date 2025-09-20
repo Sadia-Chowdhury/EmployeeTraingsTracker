@@ -32,26 +32,23 @@ namespace EmployeeTraingsTracker
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             // Full Identity setup
-                    builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
-                    {
-                        options.SignIn.RequireConfirmedAccount = false;
-                    })
-                    .AddEntityFrameworkStores<ApplicationDbContext>()
-                    .AddDefaultTokenProviders();
-
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            {
+                options.SignIn.RequireConfirmedAccount = false;
+            })
+            .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
             builder.Services.AddScoped<IdentityRedirectManager>();
             builder.Services.AddScoped<IdentityUserAccessor>();
-
-
+            builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+            builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+            // MY service
             builder.Services.AddScoped<IEmployeeService, EmployeeService>();
             builder.Services.AddScoped<ITrainingService, TrainingService>();
             builder.Services.AddScoped<IEmployeeTrainingService, EmployeeTrainingService>();
-            builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
-            builder.Services.AddRazorComponents()
-                .AddInteractiveServerComponents();
-
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<ITrainingInfoService, TrainingInfoService>();
 
             var app = builder.Build();
 
@@ -116,7 +113,7 @@ namespace EmployeeTraingsTracker
             app.MapRazorComponents<App>()
                 .AddInteractiveServerRenderMode();
 
-          app.MapAdditionalIdentityEndpoints();
+            app.MapAdditionalIdentityEndpoints();
 
             app.Run();
         }
